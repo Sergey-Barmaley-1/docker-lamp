@@ -24,10 +24,12 @@ RUN apk add --update --no-cache zlib-dev libzip-dev \
  && docker-php-ext-install zip
 
 # Install xdebug
-RUN pecl install xdebug \
- && docker-php-ext-enable xdebug
-
-# Enable XDebug
-ADD xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+RUN pecl channel-update pecl.php.net \
+    # Устанавливаем Xdebug версии 3.1.6, которая совместима с PHP 7.4
+    && pecl install xdebug-3.1.6 \
+    # Включаем Xdebug
+    && docker-php-ext-enable xdebug \
+    # Добавляем путь к zend_extension в php.ini
+    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini
 
 WORKDIR /app
